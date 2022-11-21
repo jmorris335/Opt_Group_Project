@@ -7,7 +7,7 @@ classdef RobotSensor
     
     properties
         % visibility - 1x2 array, pixels visible to sensor
-        visibility
+        visibility_2
 
         % obstacle_detection - normalized value for detecting obstacles
         %   1 is perfect reliability, 0 is never accurate
