@@ -3,6 +3,8 @@ classdef RobotSensor
     % list for all sensor parameters. A robot has a SensorConfiguration,
     % which in turn has a collection of Sensors.
     
+    % DUMMY COMMENT
+    
     properties
         % visibility - 1x2 array, pixels visible to sensor
         visibility
