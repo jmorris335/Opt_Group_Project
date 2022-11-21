@@ -5,5 +5,3 @@ Authors: Prabin Adhikari, John Morris
 Date: Fall 2022  
 Class: ME 8710  
 Professor: Dr. Cameron Turner  
-
-DUMMY COMMENT
