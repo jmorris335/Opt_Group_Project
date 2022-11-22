@@ -1,4 +1,4 @@
-classdef Terrain
+classdef Terrain < handle
     % Terrain Details of terrain for robotic path-finding
     %   This class provides the full definition of the environment that a
     %   simulated robot will traverse. Its parameters include several maps 
@@ -31,12 +31,12 @@ classdef Terrain
     
     methods
         %% Construction
-        function obj = Terrain(edge_length, precision)
+        function obj = Terrain(edge_length, pixels_per_side)
         % Basic constructor for class
             obj.EDGE_LENGTH = edge_length;
-            obj.n = precision;
-            obj.topography_map = createTopography();
-            obj.obstacle_map = createObstacles();
+            obj.n = pixels_per_side;
+            obj.topography_map = obj.createTopography();
+            obj.obstacle_map = obj.createObstacles();
         end
         
         function [topography_out] = createTopography(obj)
