@@ -15,38 +15,84 @@ classdef Terrain < handle
     properties    
         % Maps
         
-        topography_map  % nxn array of the elevation of the terrain
+        elevation_map   % nxn array of the elevation of the terrain
         obstacle_map    % nxn array of booleans, 0 is pass, 1 is no pass
 
         % Environment variables
         
-        visibility      % normalized value, 1 is full vision, 0 is no vision
+        PEAK_HEIGHT double {mustBePositive} % maximum elevation on map
         
     end
     
     properties (Access=private)
-        EDGE_LENGTH     % Length of one side of the map
-        n               % Amount of pixels per side (precision)
+        n               % Amount of cells per side
     end
     
     methods
         %% Construction
-        function obj = Terrain(edge_length, pixels_per_side)
+        function obj = Terrain(cells_per_side, peak_height)
         % Basic constructor for class
-            obj.EDGE_LENGTH = edge_length;
-            obj.n = pixels_per_side;
-            obj.topography_map = obj.createTopography();
+            obj.n = cells_per_side;
+            obj.PEAK_HEIGHT = peak_height;
+            obj.elevation_map = obj.createTopography();
             obj.obstacle_map = obj.createObstacles();
         end
         
         function [topography_out] = createTopography(obj)
         % Returns a randomized map of the topography
-            topography_out = zeros(obj.n, obj.n);
+            topography_out = randi(obj.PEAK_HEIGHT, obj.n);
         end
         
         function [obstacles_out] = createObstacles(obj)
         % Returns a randomized map of the obstacles in the terrain
-            obstacles_out = zeros(obj.n, obj.n);
-        end 
+            obstacles_out = randi(2, obj.n) - 1;
+        end
+
+        function [out_elvs] = senseElevations(obj, row, col, direction, accuracy)
+        % Returns an array of elevations based on the accuracy of inputted 
+        %   sensor in the given direction
+            out_elvs = zeros(1, length(accuracy));
+            for i = 1:length(accuracy)
+                [row, col] = direction.move1cell(row, col);
+                out_elvs(i) = obj.senseElevationAt(row, col, accuracy(i));
+            end
+        end
+
+        function [out_elv] = senseElevationAt(obj, row, col, accuracy)
+        % Returns the elevation at the inputted row and column adjusted at
+        %   the inputted accuracy
+            if (row > obj.n) || (col > obj.n) || accuracy == 0
+                    out_elv = NaN;
+            else
+                real = obj.elevation_map(row, col);
+                error = obj.PEAK_HEIGHT * (-1 + 2*rand(1)) * (1 - accuracy);
+                out_elv = max(min(real + error, obj.PEAK_HEIGHT), 0);
+            end
+        end
+
+        function [out_obss] = senseObstacles(obj, row, col, direction, accuracy)
+        % Returns an array of go/no-go booleans based on the accuracy of inputted 
+        %   sensor in the given direction
+            out_obss = zeros(1, length(accuracy));
+            for i = 1:length(accuracy)
+                [row, col] = direction.move1cell(row, col);
+                out_obss(i) = obj.senseObstacleAt(row, col, accuracy(i));
+            end
+        end
+
+        function [out_obs] = senseObstacleAt(obj, row, col, accuracy)
+        % Returns whether the sensor detected an obstacle at the inputted row 
+        %   and column based on the inputted accuracy
+            if (row > obj.n) || (col > obj.n) || accuracy == 0
+                    out_obs = NaN;
+            else
+                error = rand(1) > accuracy;
+                if error
+                    out_obs = ~obj.obstacle_map(row, col);
+                else
+                    out_obs = obj.obstacle_map(row, col);
+                end
+            end
+        end
     end
 end
