@@ -41,5 +41,21 @@ classdef RobotSensor
         temp(1:min(length(obs_acc), obs_range)) = obs_acc(1:min(length(obs_acc), obs_range));
         obj.obstacle_accuracy = temp;
         end
+
+        function out = toString(obj)
+            out = append(sprintf('Sensor'), newline);
+            out = append(out, sprintf('\tElevation Range: %d', obj.elevation_range));
+            out = append(out, newline, sprintf('\tObstacle Range: %d', obj.obstacle_range));
+            out = append(out, newline, sprintf('\tElevation Accuracy: ['));
+            for i = 1:length(obj.elevation_accuracy)
+                out = append(out, sprintf('%.2g, ', obj.elevation_accuracy(i)));
+            end
+            out = append(out, ']');
+            out = append(out, newline, sprintf('\tObstacle Accuracy: ['));
+            for i = 1:length(obj.obstacle_accuracy)
+                out = append(out, sprintf('%.2g, ', obj.obstacle_accuracy(i)));
+            end
+            out = append(out, ']');
+        end
     end    
 end

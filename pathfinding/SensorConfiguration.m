@@ -147,6 +147,18 @@ classdef SensorConfiguration < handle
             end
             out = obj.sensors{direction};
        end
+
+       function [out] = toString(obj) 
+           out = append('Sensor Configuraiton', newline);
+            for i = 1:4
+                out = append(out, string(DIRECTION(i)), newline);
+                for j = 1:length(obj.sensors{i})
+                    out = append(out, obj.sensors{i}{j}.toString(), newline);
+                end
+                out = append(out, newline);
+            end
+       end
+
    end
 end
 

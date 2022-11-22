@@ -21,11 +21,7 @@ classdef Terrain < handle
         % Environment variables
         
         PEAK_HEIGHT double {mustBePositive} % maximum elevation on map
-        
-    end
-    
-    properties (Access=private)
-        n               % Amount of cells per side
+        n {mustBeInteger, mustBePositive}   % Amount of cells per side
     end
     
     methods
@@ -46,8 +42,22 @@ classdef Terrain < handle
         function [obstacles_out] = createObstacles(obj)
         % Returns a randomized map of the obstacles in the terrain
             obstacles_out = randi(2, obj.n) - 1;
+            obstacles_out(1, 1) = 0;
+            obstacles_out(obj.n, obj.n) = 0;
         end
 
+        %% Access
+        function [out] = getElevationAt(obj, row, col)
+        % Getter for elevation_map
+            out = obj.elevation_map(row, col);
+        end
+
+        function [out] = getObstacleAt(obj, row, col)
+        % Getter for obstacle_map
+            out = obj.obstacle_map(row, col);
+        end
+
+        %% Sensor Functions
         function [out_elvs] = senseElevations(obj, row, col, direction, accuracy)
         % Returns an array of elevations based on the accuracy of inputted 
         %   sensor in the given direction
@@ -61,7 +71,7 @@ classdef Terrain < handle
         function [out_elv] = senseElevationAt(obj, row, col, accuracy)
         % Returns the elevation at the inputted row and column adjusted at
         %   the inputted accuracy
-            if (row > obj.n) || (col > obj.n) || accuracy == 0
+            if (row > obj.n) || (col > obj.n) || (row <= 0) || (col <= 0) || accuracy == 0
                     out_elv = NaN;
             else
                 real = obj.elevation_map(row, col);
@@ -83,7 +93,7 @@ classdef Terrain < handle
         function [out_obs] = senseObstacleAt(obj, row, col, accuracy)
         % Returns whether the sensor detected an obstacle at the inputted row 
         %   and column based on the inputted accuracy
-            if (row > obj.n) || (col > obj.n) || accuracy == 0
+            if (row > obj.n) || (col > obj.n) || (row <= 0) || (col <= 0) || accuracy == 0
                     out_obs = NaN;
             else
                 error = rand(1) > accuracy;
@@ -92,6 +102,31 @@ classdef Terrain < handle
                 else
                     out_obs = obj.obstacle_map(row, col);
                 end
+            end
+        end
+
+        %% Display
+        function [out] = toString(obj)
+            out = [sprintf('Terrain Class\n'), ...
+            sprintf('\tElevation: \n')];
+
+            elvs = string(obj.elevation_map);
+            for i = 1:obj.n
+                out = append(out, sprintf('\t'));
+                for j = 1:obj.n
+                    out = append(out, sprintf(elvs(i, j) + sprintf(' ')));
+                end
+                out = append(out, newline);
+            end
+
+            out = append(out, sprintf('\n\tObstacles: \n'));
+            obss = string(obj.obstacle_map);
+            for i = 1:obj.n
+                out = append(out, sprintf('\t'));
+                for j = 1:obj.n
+                    out = append(out, sprintf(obss(i, j) + sprintf(' ')));
+                end
+                out = append(out, newline);
             end
         end
     end
