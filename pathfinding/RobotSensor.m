@@ -27,19 +27,14 @@ classdef RobotSensor
     end
     
     methods
-        function obj = RobotSensor(cost, elv_range, obs_range, elv_acc, obs_acc)
+        function obj = RobotSensor(cost, elv_acc, obs_acc)
         % Basic constructor
         obj.cost = cost;
-        obj.elevation_range = elv_range;
-        obj.obstacle_range = obs_range;
+        obj.elevation_range = length(elv_acc);
+        obj.obstacle_range = length(obs_acc);
 
-        temp = zeros(1, elv_range);
-        temp(1:min(length(elv_acc), elv_range)) = elv_acc(1:min(length(elv_acc), elv_range));
-        obj.elevation_accuracy = temp;
-
-        temp = zeros(1, obs_range);
-        temp(1:min(length(obs_acc), obs_range)) = obs_acc(1:min(length(obs_acc), obs_range));
-        obj.obstacle_accuracy = temp;
+        obj.elevation_accuracy = elv_acc;
+        obj.obstacle_accuracy = obs_acc;
         end
 
         function out = toString(obj)

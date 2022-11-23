@@ -26,22 +26,40 @@ classdef Terrain < handle
     
     methods
         %% Construction
-        function obj = Terrain(cells_per_side, peak_height)
+        function obj = Terrain(cells_per_side, peak_height, steepness, density)
         % Basic constructor for class
             obj.n = cells_per_side;
             obj.PEAK_HEIGHT = peak_height;
-            obj.elevation_map = obj.createTopography();
-            obj.obstacle_map = obj.createObstacles();
+            obj.elevation_map = obj.createTopography(steepness);
+            obj.obstacle_map = obj.createObstacles(density);
         end
         
-        function [topography_out] = createTopography(obj)
+        function [topo_out] = createTopography(obj, steepness)
         % Returns a randomized map of the topography
-            topography_out = randi(obj.PEAK_HEIGHT, obj.n);
+        %   steepness is a normalized parameter for changing the randomness 
+        %   (elevation change) of the topography. 0 is perfectly flat, 1 is 
+        %   random cliffs
+            
+            diff = steepness * obj.PEAK_HEIGHT;
+
+            topo_out = NaN(obj.n);
+            topo_out(1, 1) = 0;
+
+            surrounding = @(i, n) unique([max(1,i-n-1):max(1,i-n+1), max(1,i-1), ...
+                min(n,i+1), min(n^2,i+n-1):min(n^2,i+n+1)]);
+
+            %Create cluster
+            for i = 1:numel(topo_out)
+                avg = mean([topo_out(surrounding(i, obj.n))], 'omitnan');
+                rnd = 2*diff * rand - diff;
+                topo_out(i) = min(obj.PEAK_HEIGHT, max(0, avg + rnd));
+            end
         end
         
-        function [obstacles_out] = createObstacles(obj)
+        function [obstacles_out] = createObstacles(obj, density)
         % Returns a randomized map of the obstacles in the terrain
-            obstacles_out = randi(2, obj.n) - 1;
+
+            obstacles_out = rand(obj.n, obj.n) < density;
             obstacles_out(1, 1) = 0;
             obstacles_out(obj.n, obj.n) = 0;
         end
@@ -114,13 +132,13 @@ classdef Terrain < handle
             for i = 1:obj.n
                 out = append(out, sprintf('\t'));
                 for j = 1:obj.n
-                    out = append(out, sprintf(elvs(i, j) + sprintf(' ')));
+                    out = append(out, sprintf('%.2f ', elvs(i, j)));
                 end
                 out = append(out, newline);
             end
 
             out = append(out, sprintf('\n\tObstacles: \n'));
-            obss = string(obj.obstacle_map);
+            obss = string(uint8(obj.obstacle_map));
             for i = 1:obj.n
                 out = append(out, sprintf('\t'));
                 for j = 1:obj.n

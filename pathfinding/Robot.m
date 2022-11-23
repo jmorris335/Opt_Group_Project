@@ -4,10 +4,83 @@ classdef Robot < handle
     %   the Terrain maps. It uses repeated calls to the Terrain, passing
     %   its SensorConfiguration to build up a internal knowledge of the
     %   map. It then traverses the map via an Djikstra pathfinding algorithm.
+    %
+    % Robot Properties:
+    %   rig - SensorConfiguration on robot
+    %   terrain - Terrain object robot navigates within
+    %   position - 1x2 array of current position [row, column]
+    %   known_nodes - nxn array of values about the state of each node
+    %   manh_distance - nxn array of manhatten distances to goal
+    %   elevation_map - nxn array of estimated elevations
+    %   obstacle_map - nxn array of estimated obstacles
+    %   steps - cell array of all nodes visited by robot
+    %   elevation_change - double, total elevation climbed/descended by robot
+    %
+    % Robot Methods:
+    %   calcManhDistance - Manhatten distance to the goal for every unvisited 
+    %       node
+    %   row - Return the row component of the current position
+    %   col - Return the col component of the current position
+    %   totalSteps - Total steps taken by the robot up to this point
+    %   placeAt - Places the robot on an arbitrary node in the grid
+    %   costOfPath - Returns the cost of the path the robot has currently 
+    %       traveled
+    %   succeeded - Returns true if robot reached the goal
+    %   exploreHere - Explores nodes connected to the current position within 
+    %       sensor range
+    %   senseElevation - Calls the terrain methods to sense the elevation about 
+    %       the current position
+    %   senseObstacles - Calls the terrain methods to sense the obstacles around 
+    %       the current position
+    %   pathfind - Main pathfinding function for finding the optimal path 
+    %       from start to finish
+    %   chooseNextStep - Finds the closest, unvisited node to the end goal, 
+    %       as compared by the manhatten distance
+    %   findOptimalPath - Find the cheapest path from "from" to "there" using 
+    %       Djikstra's algorithm.
+    %   travelPath - Moves the robot along the path from "here" to "there" via 
+    %       the neighbor nodes defined in closest_node
+    %   move - move in a straight line from the robot's current position to "there"
+    %   plotPath - Plots the path of the robot
+    %   toString - returns a string of the robot's estimated state
+    %
+    % Example Usage:
+    %     % Declare random seed
+    %     rng(31);
+    %     
+    %     % Create Sensors
+    %     elv_acc = [1, 1, 1, 1];
+    %     obs_acc = [1, 1, 1, 1];
+    %     sensor1 = RobotSensor(5, elv_acc, obs_acc);
+    %     
+    %     % Setup SensorConfiguration
+    %     rig = SensorConfiguration();
+    %     sensors = [sensor1, sensor1, sensor1, sensor1];
+    %     dirs = [1, 2, 3, 4];
+    %     rig.addSensors(sensors, dirs);
+    %     
+    %     % Setup terrain
+    %     N = 5;
+    %     max_height = 3;
+    %     steepness = 0.25;
+    %     density = .3;
+    %     terr = Terrain(N, max_height, steepness, density);
+    %     disp(terr.toString());
+    %     
+    %     % Setup robot
+    %     rob = Robot(rig, terr);
+    %     disp(rob.toString());
+    %     
+    %     % Find path
+    %     rob.pathfind();
+    %     
+    %     % Show results
+    %     disp(rob.toString());
+    %     rob.plotPath();
 
     properties (Access=private)
         rig SensorConfiguration
-        terrain Terrain
+        terrain Terrain 
         position {mustBeInteger, mustBeNonnegative}
 
         % known_nodes - an nxn array of values about the state of each node
@@ -44,6 +117,8 @@ classdef Robot < handle
             obj.obstacle_map(1, 1) = terrain.getObstacleAt(1, 1);
             obj.known_nodes(1, 1) = 1;
             obj.calcManhDistance();
+
+            obj.exploreHere();
         end
 
         function [] = calcManhDistance(obj)
@@ -87,6 +162,12 @@ classdef Robot < handle
         function [out] = costOfPath(obj, beta)
         % Returns the cost of the path the robot has currently traveled
             out = length(obj.steps) + beta * obj.elevation_change;
+        end
+
+        function [out] = succeeded(obj)
+        % Returns true if robot reached the goal
+            out = isequal(obj.steps{end}, [obj.terrain.n, obj.terrain.n]);
+
         end
 
         %% Navigation
@@ -137,7 +218,7 @@ classdef Robot < handle
         % Main pathfinding function for finding the optimal path from start
         %   to finish
         
-            kill_at = 200;
+            kill_at = 50;
             count = 0;
             while ~isequal([obj.row, obj.col], [obj.terrain.n, obj.terrain.n]) ...
                   && count <= kill_at
@@ -152,6 +233,7 @@ classdef Robot < handle
         function [there] = chooseNextStep(obj)
         % Finds the closest, unvisited node to the end goal, as compared by
         % the manhatten distance
+
             obj.calcManhDistance();
             [there(1), there(2)] = find(obj.manh_distance == min(obj.manh_distance, [], 'all'), 1);
         end
@@ -262,6 +344,7 @@ classdef Robot < handle
 
         %% Display
         function [out] = plotPath(obj)
+        % Plots the path of the robot
             xcoord = zeros(1, length(obj.steps));
             ycoord = zeros(1, length(obj.steps));
             for i = 1:length(obj.steps)
@@ -289,6 +372,7 @@ classdef Robot < handle
         end
 
         function [out] = toString(obj)
+        % Returns a string of the robot's current state
             out = append(sprintf('Robot Class'), newline);
             out = append(out, sprintf('\tEstimated Elevation:'), newline);
 
