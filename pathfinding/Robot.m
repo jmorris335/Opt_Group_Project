@@ -3,7 +3,7 @@ classdef Robot < handle
     %   The Robot contains a SensorConfiguration which it uses to perceive
     %   the Terrain maps. It uses repeated calls to the Terrain, passing
     %   its SensorConfiguration to build up a internal knowledge of the
-    %   map. It then traverses the map via an A* pathfinding algorithm.
+    %   map. It then traverses the map via an Djikstra pathfinding algorithm.
 
     properties (Access=private)
         rig SensorConfiguration
@@ -134,10 +134,13 @@ classdef Robot < handle
 
         %% Pathfinding
         function [] = pathfind(obj)
-            kill_at = 30;
+        % Main pathfinding function for finding the optimal path from start
+        %   to finish
+        
+            kill_at = 200;
             count = 0;
             while ~isequal([obj.row, obj.col], [obj.terrain.n, obj.terrain.n]) ...
-                    && sum(isnan(obj.known_nodes), 'all') ~= 0 && count <= kill_at
+                  && count <= kill_at
                 here = [obj.row, obj.col];
                 there = obj.chooseNextStep();
                 [there, closest_node] = obj.findOptimalPath(here, there);
