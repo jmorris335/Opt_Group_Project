@@ -7,7 +7,7 @@
 5. DIRECTION.m : An enumeration of the types of moves (that sets the order moves are checked in)
 
 ## Example
-```
+```matlab
 % Declare random seed
 rng(31);
 
