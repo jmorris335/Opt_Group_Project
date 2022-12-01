@@ -45,8 +45,8 @@ classdef SensorConfiguration < handle
             obj.total_cost = 0;
             obj.elevation_range = zeros(1, 4);
             obj.obstacle_range = zeros(1, 4);
-            obj.elevation_accuracy = zeros(4, 1);
-            obj.obstacle_accuracy = zeros(4, 1);
+%             obj.elevation_accuracy = zeros(4, 1);
+%             obj.obstacle_accuracy = zeros(4, 1);
 
             for i = 1:nargin
                 if ~isa(varargin(i), 'RobotSensor')
@@ -93,16 +93,16 @@ classdef SensorConfiguration < handle
                 return
             end
             
-            diff = sensor.elevation_range - obj.elevation_range(direction);
+            diff = sensor.elevation_range - max(obj.elevation_range);
             if diff > 0
                 obj.elevation_range(direction) = sensor.elevation_range;
-                obj.elevation_accuracy = [obj.elevation_accuracy, zeros(4, diff-1)];
+                obj.elevation_accuracy = [obj.elevation_accuracy, zeros(4, diff)];
             end
 
-            diff = sensor.obstacle_range - obj.obstacle_range(direction);
+            diff = sensor.obstacle_range - max(obj.obstacle_range);
             if diff > 0
                 obj.obstacle_range(direction) = sensor.obstacle_range;
-                obj.obstacle_accuracy = [obj.obstacle_accuracy, zeros(4, diff-1)];
+                obj.obstacle_accuracy = [obj.obstacle_accuracy, zeros(4, diff)];
             end
        end
 

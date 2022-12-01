@@ -161,13 +161,21 @@ classdef Robot < handle
 
         function [out] = costOfPath(obj, beta)
         % Returns the cost of the path the robot has currently traveled
-            out = length(obj.steps) + beta * obj.elevation_change;
+            if obj.succeeded()
+                out = length(obj.steps) + beta * obj.elevation_change;
+            else
+                out = Inf;
+            end
         end
 
         function [out] = succeeded(obj)
         % Returns true if robot reached the goal
             out = isequal(obj.steps{end}, [obj.terrain.n, obj.terrain.n]);
+        end
 
+        function [out] = sensorCost(obj)
+        % Returns the cost of the SensorConfiguration
+            out = obj.rig.total_cost;
         end
 
         %% Navigation
@@ -358,9 +366,10 @@ classdef Robot < handle
             for i = 1:N
                 for j = 1:N
                     if obj.terrain.getObstacleAt(j, i)
-                        plot(i, N-j+1, 'xk', 'MarkerSize', 40);
+                        plot(i, N-j+1, 'squarek', 'MarkerSize', 20, ...
+                            'MarkerFaceColor', 'k');
                     else
-                        plot(i, N-j+1, '.k', 'MarkerSize', 20);
+                        plot(i, N-j+1, '.k', 'MarkerSize', 15);
                     end
                 end
             end
@@ -368,6 +377,7 @@ classdef Robot < handle
             plot(xcoord, N-ycoord+1, 'r', 'LineWidth', 2);
             title('Path of Robot')
             subtitle(sprintf('Cost: %.2g', obj.costOfPath(1)));
+            axis([0, N+1, 0, N+1]);
             hold off
         end
 
