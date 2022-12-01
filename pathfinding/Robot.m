@@ -89,6 +89,8 @@ classdef Robot < handle
         %   visited. 1 indicates the node has been visited.
         known_nodes
 
+        closest_node
+
         % manh_distance - nxn array of manhatten distances to the goal
         manh_distance {mustBeNonnegative}
 
@@ -97,6 +99,8 @@ classdef Robot < handle
 
         steps cell
         elevation_change double {mustBeNonnegative}
+
+
     end
     
     methods
@@ -236,6 +240,7 @@ classdef Robot < handle
                 obj.travelPath(here, there, closest_node);
                 count = count + 1;
             end
+            obj.closest_node = closest_node;
         end
 
         function [there] = chooseNextStep(obj)

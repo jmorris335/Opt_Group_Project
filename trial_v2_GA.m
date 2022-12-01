@@ -1,16 +1,16 @@
 clc;
 
-rng(30);
+rng(31);
 
 %% Now let us set up the terrain
 N = 20;
 max_height = 3;
-steepness = 0.25;
-density = 0.2;
+steepness = 0.5;
+density = 0.35;
 terr = Terrain(N, max_height, steepness, density);
 disp(terr.toString());
 
-% Tuning Parameters
+%% Tuning Parameters
 max_sensors = 10;
 preset_dir = 4;
 max_range = 10;
@@ -63,6 +63,7 @@ figure(2)
 best_robot = decodeGenome(Result.X, terr, input_param);
 best_robot.pathfind();
 best_robot.plotPath();
+subtitle(sprintf('Cost: %.2g', fobj(1)));
 
 function [cost] = obj_fun(X, terr, input_param)
     rob = decodeGenome(X, terr, input_param);
@@ -104,17 +105,18 @@ function [robot] = decodeGenome(X, terr, input_param)
 end
 
 function [cost] = totalCost(sensor_cost, path_cost, max_sensor, best_path)
+    norm_sensor_cost = sensor_cost / max_sensor;
     if path_cost == Inf
-        cost = 10; %Cost for not reaching goal
-    else 
-        cost = (sensor_cost / max_sensor + (1 - best_path / path_cost)) / 2;
+        norm_path_cost = 3;
+    else
+        norm_path_cost = (1 - best_path / path_cost);
     end
+    cost = (norm_sensor_cost + norm_path_cost) / 2;
 end
 
 function [cost] = sensorCost(range, el_acc, obs_acc, c1, c2)
     cost = c1 * range + c2 * el_acc + c2 * obs_acc;
 end
-
 
 function Acc = getAcc(x, per, nRep)
     Acc(1, 1) = x;
