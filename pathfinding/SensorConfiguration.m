@@ -97,12 +97,16 @@ classdef SensorConfiguration < handle
             if diff > 0
                 obj.elevation_range(direction) = sensor.elevation_range;
                 obj.elevation_accuracy = [obj.elevation_accuracy, zeros(4, diff)];
+            else
+                obj.elevation_range(direction) = max(obj.elevation_range(direction), sensor.elevation_range);
             end
 
             diff = sensor.obstacle_range - max(obj.obstacle_range);
             if diff > 0
                 obj.obstacle_range(direction) = sensor.obstacle_range;
                 obj.obstacle_accuracy = [obj.obstacle_accuracy, zeros(4, diff)];
+            else
+                obj.obstacle_range(direction) = max(obj.obstacle_range(direction), sensor.obstacle_range);
             end
        end
 

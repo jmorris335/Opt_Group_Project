@@ -78,7 +78,7 @@ classdef Robot < handle
     %     disp(rob.toString());
     %     rob.plotPath();
 
-    properties (Access=private)
+    properties
         rig SensorConfiguration
         terrain Terrain 
         position {mustBeInteger, mustBeNonnegative}
@@ -331,6 +331,8 @@ classdef Robot < handle
                 obj.position(2) = max(0, obj.col - (there(2) < obj.col));
 
                 if obj.terrain.getObstacleAt(obj.row, obj.col)
+                    obj.known_nodes(obj.row, obj.col) = 1;
+                    obj.obstacle_map(obj.row, obj.col) = 1;
                     obj.position(1) = org_row;
                     obj.position(2) = org_col;
                     succeeded = false;

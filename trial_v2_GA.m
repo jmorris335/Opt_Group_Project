@@ -28,7 +28,7 @@ i_direction = [i_range(2) + 1, i_range(2) + max_sensors - preset_dir];
 i_el_acc = [i_direction(2) + 1, i_direction(2) + max_sensors];
 i_obs_acc = [i_el_acc(2) + 1, i_el_acc(2) + max_sensors];
 
-max_sensor_cost = sensorCost(max_range, max_el_acc, max_obs_acc, cost_range, cost_acc);
+max_sensor_cost = max_sensors * sensorCost(max_range, max_el_acc, max_obs_acc, cost_range, cost_acc);
 best_path_cost = 2*N;
 
 input_param = [cost_range, cost_acc, max_sensor_cost, best_path_cost, beta,...
@@ -58,16 +58,17 @@ options = optimoptions( 'ga', 'PopulationSize', 20, 'FunctionTolerance', 0.01, '
 
 [Result.X, fobj(1), Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
 
-%Plot Winning Robot
-best_robot = decode(Result.X, terr, input_param);
+% Plot Winning Robot
+figure(2)
+best_robot = decodeGenome(Result.X, terr, input_param);
+best_robot.pathfind();
 best_robot.plotPath();
 
 function [cost] = obj_fun(X, terr, input_param)
-    nS = X(input_param(6));
     rob = decodeGenome(X, terr, input_param);
     rob.pathfind();
    
-    cost = totalCost(rob.sensorCost() / nS, ...
+    cost = totalCost(rob.sensorCost(), ...
         rob.costOfPath(input_param(5)), input_param(3), input_param(4));
 end
 
@@ -102,13 +103,18 @@ function [robot] = decodeGenome(X, terr, input_param)
     robot = Robot(rig, terr);
 end
 
+function [cost] = totalCost(sensor_cost, path_cost, max_sensor, best_path)
+    if path_cost == Inf
+        cost = 10; %Cost for not reaching goal
+    else 
+        cost = (sensor_cost / max_sensor + (1 - best_path / path_cost)) / 2;
+    end
+end
+
 function [cost] = sensorCost(range, el_acc, obs_acc, c1, c2)
     cost = c1 * range + c2 * el_acc + c2 * obs_acc;
 end
 
-function [cost] = totalCost(sensor_cost, path_cost, max_sensor, best_path)
-    cost = (sensor_cost / max_sensor + (1 - best_path / path_cost)) / 2;
-end
 
 function Acc = getAcc(x, per, nRep)
     Acc(1, 1) = x;
@@ -116,4 +122,3 @@ function Acc = getAcc(x, per, nRep)
         Acc(1, ii) = max(0, (1 - per/100)  .* Acc(1, ii - 1));
     end
 end
-
