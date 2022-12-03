@@ -8,8 +8,8 @@ function [Result, input_param] = GA(terr)
     max_range = 10;
     max_el_acc = .95;
     max_obs_acc = .99;
-    min_el_acc = 0;
-    min_obs_acc = 0;
+    min_el_acc = 0.4; 
+    min_obs_acc = 0.4;
     cost_range = 1;
     cost_acc = 2;
     beta = 1;
@@ -50,6 +50,8 @@ function [Result, input_param] = GA(terr)
         'FunctionTolerance', 0.01, 'PlotFcn', {@gaplotbestf, @gaplotrange},...
         'MaxGenerations',200, 'MaxStallGenerations', 25, ...
         'InitialPopulationMatrix', x0); 
+    %FIXME: Make the initial pop ALL x0
+    %FIXME: Add minimum accuracy function
 
     [Result.X, Result.Fval, Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ...
         ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
