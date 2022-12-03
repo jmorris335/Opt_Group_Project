@@ -13,6 +13,7 @@ function [Result, input_param] = GA(terr)
     cost_range = 1;
     cost_acc = 2;
     beta = 1;
+    size_pop = 20;
     
     i_max_sensors = 1;
     i_range = [i_max_sensors + 1, i_max_sensors + max_sensors];
@@ -45,11 +46,13 @@ function [Result, input_param] = GA(terr)
           max_obs_acc * ones(1, max_sensors)];
     
     intcon = 1:i_max_sensors + max_sensors + (max_sensors - preset_dir);
-    options = optimoptions( 'ga', 'PopulationSize', 50, ...
-        'FunctionTolerance', 0.005, 'PlotFcn', {@gaplotbestf, @gaplotrange},...
-        'MaxGenerations',200, 'MaxStallGenerations', 25); 
+    options = optimoptions( 'ga', 'PopulationSize', 20, ...
+        'FunctionTolerance', 0.01, 'PlotFcn', {@gaplotbestf, @gaplotrange},...
+        'MaxGenerations',200, 'MaxStallGenerations', 25, ...
+        'InitialPopulationMatrix', x0); 
 
-    [Result.X, Result.Fval, Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
+    [Result.X, Result.Fval, Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ...
+        ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
 end
 
 function [cost] = obj_fun(X, terr, input_param)

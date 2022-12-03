@@ -1,4 +1,4 @@
-run_case = 1;
+run_case = 2;
 
 switch run_case
     case 1 % Normal

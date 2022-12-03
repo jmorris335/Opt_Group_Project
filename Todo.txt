@@ -6,11 +6,13 @@ Rewriting:
  - Describe how optimization problem was setup and integrates with robots
  
 Results:
- 1. Base case
- 2. Increased obstacles
- 3. Increased steepness
- 4. Increased N
- 5. Bad case: everything increased
+ - Increase precision and population count
+ - Run all following cases:
+     1. Base case
+     2. Increased obstacles
+     3. Increased steepness
+     4. Increased N
+     5. Bad case: everything increased
 
 Writing:
  - Results and explanation for each case
