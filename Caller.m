@@ -1,7 +1,7 @@
 clear
 
 % Declare random seed
-rng(31);
+rng(30);
 
 % Create Sensors
 cost = 5;
@@ -16,7 +16,7 @@ dirs = [1, 2, 3, 4, 2];
 rig.addSensors(sensors, dirs);
 
 % Setup terrain
-N = 10;
+N = 30;
 max_height = 3;
 steepness = 0.25;
 density = 0.2;

@@ -100,6 +100,7 @@ classdef Robot < handle
         steps cell
         elevation_change double {mustBeNonnegative}
 
+        rand_id {mustBeNonnegative} % random integer for deterministic simulation
 
     end
     
@@ -115,6 +116,7 @@ classdef Robot < handle
             obj.known_nodes = NaN(terrain.n);
             obj.steps = {[1, 1]};
             obj.elevation_change = 0;
+            obj.rand_id = floor(obj.rig.elevation_accuracy(3, 1) * 100) + floor(obj.rig.obstacle_accuracy(3, 1) * 100);
 
             % Initialize starting values
             obj.elevation_map(1, 1) = terrain.getElevationAt(1, 1);
@@ -229,7 +231,7 @@ classdef Robot < handle
         function [] = pathfind(obj)
         % Main pathfinding function for finding the optimal path from start
         %   to finish
-        
+            obj.terrain.reset(obj.rand_id);
             kill_at = 50;
             count = 0;
             while ~isequal([obj.row, obj.col], [obj.terrain.n, obj.terrain.n]) ...

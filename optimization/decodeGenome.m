@@ -1,4 +1,7 @@
 function [robot] = decodeGenome(X, terr, input_param)
+% Decodes a genome into the representative robot
+
+    %% Genome Identification parameters
     i_max_sensors = input_param(6);
     i_range = input_param(7:8);
     i_direction = input_param(9:10);
@@ -13,6 +16,8 @@ function [robot] = decodeGenome(X, terr, input_param)
 
     Directions = [1, 2, 3, 4, D];
 
+    %% Create Robot
+    % Create individual sensors
     for jj  = 1 : nS
         sensor_cost = sensorCost(R(jj), Ael(jj), Aob(jj), input_param(1), input_param(2));
         elevAcc = getAcc(Ael(jj), 5, R(jj));
@@ -25,16 +30,18 @@ function [robot] = decodeGenome(X, terr, input_param)
     dirs = Directions(1: nS);
     rig.addSensors(sensors, dirs)
     
-    %setting up robots
+    %setting up robot
     robot = Robot(rig, terr);
 end
 
 function [cost] = sensorCost(range, el_acc, obs_acc, c1, c2)
+% Returns the cost of a sensor given some scalars
     cost = c1 * range + c2 * el_acc + c2 * obs_acc;
 end
 
 
 function Acc = getAcc(x, per, nRep)
+% Generates a list of accuracies that decrease over the inputted range
     Acc(1, 1) = x;
     for ii = 2 : nRep
         Acc(1, ii) = max(0, (1 - per/100)  .* Acc(1, ii - 1));

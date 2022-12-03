@@ -1,8 +1,7 @@
-run_case = 2;
+run_case = 1;
 
 switch run_case
-    %% Case 1 (Normal):
-    case 1
+    case 1 % Normal
     rng(30);
     N = 20;
     max_height = 3;
@@ -10,8 +9,7 @@ switch run_case
     density = 0.2;
     terr = Terrain(N, max_height, steepness, density);
     
-    %% Case 2 (Steep, and Obstacles)
-    case 2
+    case 2 % Steep, and Obstacles
     rng(31);
     N = 20;
     max_height = 3;
@@ -21,16 +19,15 @@ switch run_case
 end
 
 %% Plot GA
-disp(terr.toString());
-[Result, input_param, X]= GA(terr);
-plotRobot(Result.X, Result.fobj, terr, input_param)
+% disp(terr.toString());
+[Result, input_param]= GA(terr);
+best_robot = decodeGenome(Result.X, terr, input_param);
+plotRobot(best_robot, Result.Fval)
 
-
-function [] = plotRobot(X, fobj, terr, input_param)
+function [] = plotRobot(best_robot, Fval)
     % Plot Winning Robot
     figure(2)
-    best_robot = decodeGenome(X, terr, input_param);
     best_robot.pathfind();
     best_robot.plotPath();
-    subtitle(sprintf('Cost: %.4g', fobj));
+    subtitle(sprintf('Cost: %.4g', Fval));
 end

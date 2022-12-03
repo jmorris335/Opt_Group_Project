@@ -12,7 +12,9 @@ classdef Terrain < handle
     %   environmental variables. Note that the robot always starts at (1,1) 
     %   and ends at (n,n)
     
-    properties    
+    properties 
+        p_rand PsuedoRandom % For deterministic pathfinding
+
         % Maps
         
         elevation_map   % nxn array of the elevation of the terrain
@@ -32,6 +34,7 @@ classdef Terrain < handle
             obj.PEAK_HEIGHT = peak_height;
             obj.elevation_map = obj.createTopography(steepness);
             obj.obstacle_map = obj.createObstacles(density);
+            obj.p_rand = PsuedoRandom();
         end
         
         function [topo_out] = createTopography(obj, steepness)
@@ -76,6 +79,12 @@ classdef Terrain < handle
         end
 
         %% Sensor Functions
+        function [] = reset(obj, new_set)
+        % Resets the PsuedoRandom property. If called before pathfinding
+        % allows for randomized, yet deterministic pathfinding simulations.
+            obj.p_rand.set(new_set);
+        end
+
         function [out_elvs] = senseElevations(obj, row, col, direction, accuracy)
         % Returns an array of elevations based on the accuracy of inputted 
         %   sensor in the given direction
@@ -93,7 +102,7 @@ classdef Terrain < handle
                     out_elv = NaN;
             else
                 real = obj.elevation_map(row, col);
-                error = obj.PEAK_HEIGHT * (-1 + 2*rand(1)) * (1 - accuracy);
+                error = obj.PEAK_HEIGHT * (-1 + 2* obj.p_rand.getFloat() ) * (1 - accuracy);
                 out_elv = max(min(real + error, obj.PEAK_HEIGHT), 0);
             end
         end
@@ -114,7 +123,7 @@ classdef Terrain < handle
             if (row > obj.n) || (col > obj.n) || (row <= 0) || (col <= 0) || accuracy == 0
                     out_obs = NaN;
             else
-                error = rand(1) > accuracy;
+                error = obj.p_rand.getFloat() > accuracy;
                 if error
                     out_obs = ~obj.obstacle_map(row, col);
                 else

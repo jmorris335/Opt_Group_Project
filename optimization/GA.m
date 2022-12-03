@@ -1,4 +1,6 @@
-function [Result, input_param, X] = GA(terr)
+function [Result, input_param] = GA(terr)
+% Runs a genetic algorithm for a given environment
+
     %% Tuning Parameters
     N = terr.n;
     max_sensors = 10;
@@ -43,12 +45,11 @@ function [Result, input_param, X] = GA(terr)
           max_obs_acc * ones(1, max_sensors)];
     
     intcon = 1:i_max_sensors + max_sensors + (max_sensors - preset_dir);
-    options = optimoptions( 'ga', 'PopulationSize', 20, 'FunctionTolerance', 0.01, 'PlotFcn', {@gaplotbestf, @gaplotrange},...
-                 'MaxGenerations',200, 'MaxStallGenerations', 20); 
+    options = optimoptions( 'ga', 'PopulationSize', 50, ...
+        'FunctionTolerance', 0.005, 'PlotFcn', {@gaplotbestf, @gaplotrange},...
+        'MaxGenerations',200, 'MaxStallGenerations', 25); 
 
-    [Result.X, fobj(1), Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
-    Result.fobj = fobj(1);
-    X = Result.X;
+    [Result.X, Result.Fval, Result.GAexitflag, Result.GAoutput, Result.GApopulation, Result.GAscores] = ga(@(X)obj_fun(X, terr, input_param), length(x0), [], [], [], [], lb, ub,[],intcon, options);
 end
 
 function [cost] = obj_fun(X, terr, input_param)
@@ -57,16 +58,6 @@ function [cost] = obj_fun(X, terr, input_param)
    
     cost = totalCost(rob.sensorCost(), ...
         rob.costOfPath(input_param(5)), input_param(3), input_param(4));
-end
-
-function [cost] = totalCost(sensor_cost, path_cost, max_sensor, best_path)
-    norm_sensor_cost = sensor_cost / max_sensor;
-    if path_cost == Inf
-        norm_path_cost = 3;
-    else
-        norm_path_cost = (1 - best_path / path_cost);
-    end
-    cost = (norm_sensor_cost + norm_path_cost) / 2;
 end
 
 function [cost] = sensorCost(range, el_acc, obs_acc, c1, c2)

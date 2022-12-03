@@ -1,0 +1,20 @@
+TODO
+
+Rewriting:
+ - Change constraints
+ - Explain how all objects are defined/created, as well as pathfinding algorithm
+ - Describe how optimization problem was setup and integrates with robots
+ 
+Results:
+ 1. Base case
+ 2. Increased obstacles
+ 3. Increased steepness
+ 4. Increased N
+ 5. Bad case: everything increased
+
+Writing:
+ - Results and explanation for each case
+ - Conclusion
+ - Appendix (code examples, documentation)
+
+
