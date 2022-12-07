@@ -15,8 +15,11 @@ Results:
      5. Bad case: everything increased
 
 Writing:
- - Results and explanation for each case
- - Conclusion
+ - Pathfinding: John
+ - Optimization: Prabin
+    - Results and explanation for each case
+ - Conclusion: John
  - Appendix (code examples, documentation)
+    - John: Throw code examples in 
 
 

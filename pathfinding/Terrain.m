@@ -14,6 +14,7 @@ classdef Terrain < handle
     
     properties 
         p_rand PsuedoRandom % For deterministic pathfinding
+        color_map {mustBeNonnegative} % For plotting elevations
 
         % Maps
         
@@ -35,6 +36,7 @@ classdef Terrain < handle
             obj.elevation_map = obj.createTopography(steepness);
             obj.obstacle_map = obj.createObstacles(density);
             obj.p_rand = PsuedoRandom();
+            obj.makeColorMap();
         end
         
         function [topo_out] = createTopography(obj, steepness)
@@ -65,6 +67,34 @@ classdef Terrain < handle
             obstacles_out = rand(obj.n, obj.n) < density;
             obstacles_out(1, 1) = 0;
             obstacles_out(obj.n, obj.n) = 0;
+        end
+
+        function [color_map] = makeColorMap(obj)
+        % Creates the color map for plotting the elevations.
+        %   Yellow is high, green is low
+        obj.color_map = [0.5, 0.8, 0.5;...
+                         0.6, 0.9, 0.5;...
+                         0.8, 1.0, 0.5;...
+                         0.9, 1.0, 0.5;...
+                         1.0, 1.0, 0.7;...
+                         0.0, 0.0, 0.0];
+        color_map = obj.color_map;
+        end
+
+        function [index_map] = getColorMapIndex(obj)
+        % Returns an index to the color the elevation should map to.
+        index_map = zeros(size(obj.elevation_map));
+        ratios = obj.elevation_map ./ obj.PEAK_HEIGHT;
+        h = height(obj.color_map);
+        vals = 0:1/(h-1):(h-2)/(h-1);
+            for i = 1:height(obj.elevation_map)
+                for j = 1:width(obj.elevation_map)
+                    [~, index_map(i, j)] = min(abs(ratios(i, j) - vals));
+                    if obj.getObstacleAt(i, j)
+                        index_map(i, j) = h;
+                    end
+                end
+            end
         end
 
         %% Access
@@ -155,6 +185,19 @@ classdef Terrain < handle
                 end
                 out = append(out, newline);
             end
+        end
+
+        function [p] = plot(obj)
+        % Plots the terrain and returns a handle to the plot
+            x = (0:obj.n) + 0.5;
+            y = (0:obj.n) + 0.5;
+            [x, y] = meshgrid(x, y);
+            c = obj.getColorMapIndex();
+            c_map = obj.color_map;
+            k = height(c_map);
+            c = [c, k*ones(height(c), 1); k*ones(1, width(c)+1)];
+            p = pcolor(x, obj.n-y+1, c);
+            colormap(c_map)
         end
     end
 end

@@ -302,10 +302,9 @@ classdef Robot < handle
                 end
             end
         end
-        
+
         function [] = travelPath(obj, here, there, closest_node)
-        % Moves the robot along the path from "here" to "there" via the
-        %   neighbor nodes defined in closest_node
+        % Moves the robot along the closest path from "here" to "there"
         %
         %   Note that "here" and "there" are 1x2 arrays (row, column)
             if isequal(here, there) 
@@ -357,7 +356,11 @@ classdef Robot < handle
             succeeded = true;
         end
 
-
+        function [path] = getOptimalPath(obj)
+        % Returns a list of the nodes of the optimal path
+        % FIXME: This functionality does not work yet
+            path = obj.getPath([1, 1], [obj.terrain.n, obj.terrain.n], obj.closest_node);
+        end
 
         %% Display
         function [out] = plotPath(obj)
@@ -372,20 +375,23 @@ classdef Robot < handle
             N = obj.terrain.n;
 
             hold on
-            for i = 1:N
-                for j = 1:N
-                    if obj.terrain.getObstacleAt(j, i)
-                        plot(i, N-j+1, 'squarek', 'MarkerSize', 20, ...
-                            'MarkerFaceColor', 'k');
-                    else
-                        plot(i, N-j+1, '.k', 'MarkerSize', 15);
-                    end
-                end
-            end
+            obj.terrain.plot()
 
-            plot(xcoord, N-ycoord+1, 'r', 'LineWidth', 2);
+            % Plot dots and squares (unless terrain has elevation heat map)
+%             for i = 1:N
+%                 for j = 1:N
+%                     if obj.terrain.getObstacleAt(j, i)
+%                         plot(i, N-j+1, 'squarek', 'MarkerSize', 20, ...
+%                             'MarkerFaceColor', 'k');
+%                     else
+%                         plot(i, N-j+1, '.k', 'MarkerSize', 15);
+%                     end
+%                 end
+%             end
+
+            plot(xcoord, N-ycoord+1, 'r', 'LineWidth', 5);
             title('Path of Robot')
-            subtitle(sprintf('Cost: %.2g', obj.costOfPath(1)));
+            subtitle(sprintf('Cost: %g', obj.costOfPath(1)));
             axis([0, N+1, 0, N+1]);
             hold off
         end

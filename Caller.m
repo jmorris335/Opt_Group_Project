@@ -1,12 +1,12 @@
 clear
 
 % Declare random seed
-rng(30);
+rng(31);
 
 % Create Sensors
 cost = 5;
-elv_acc = [1, 1, 1, 1];
-obs_acc = [1, 1, 1, 1];
+elv_acc = [1, 1, 1, 1, 1, 1, 1, 1];
+obs_acc = [1, 1, 1, 1, 1, 1, 1, 1];
 sensor1 = RobotSensor(cost, elv_acc, obs_acc);
 
 % Setup SensorConfiguration
@@ -16,10 +16,10 @@ dirs = [1, 2, 3, 4, 2];
 rig.addSensors(sensors, dirs);
 
 % Setup terrain
-N = 30;
+N = 20;
 max_height = 3;
-steepness = 0.25;
-density = 0.2;
+steepness = 0.5;
+density = 0.35;
 terr = Terrain(N, max_height, steepness, density);
 disp(terr.toString());
 
