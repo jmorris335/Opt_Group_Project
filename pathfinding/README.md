@@ -7,6 +7,9 @@
 5. DIRECTION.m : An enumeration of the types of moves (that sets the order moves are checked in)
 
 
+https://user-images.githubusercontent.com/70734743/206361257-8d5a6a4a-f171-4de1-a5d9-af5eb048527a.mov
+
+
 ## Example
 ```matlab
 % Declare random seed
