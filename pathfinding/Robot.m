@@ -101,12 +101,12 @@ classdef Robot < handle
         elevation_change double {mustBeNonnegative}
 
         rand_id {mustBeNonnegative} % random integer for deterministic simulation
-
+        toAnimate logical
     end
     
     methods
         %% Construction
-        function obj = Robot(rig, terrain)
+        function obj = Robot(rig, terrain, varargin)
         % Basic constructor
             obj.rig = rig;
             obj.position = [1, 1];
@@ -125,6 +125,12 @@ classdef Robot < handle
             obj.calcManhDistance();
 
             obj.exploreHere();
+
+            if nargin == 3
+                obj.toAnimate = varargin{1};
+            else
+                obj.toAnimate = false;
+            end
         end
 
         function [] = calcManhDistance(obj)
@@ -354,6 +360,10 @@ classdef Robot < handle
                 obj.exploreHere();
             end
             succeeded = true;
+            if obj.toAnimate
+                obj.plotPath()
+                pause(1/30);
+            end
         end
 
         function [path] = getOptimalPath(obj)
@@ -363,7 +373,7 @@ classdef Robot < handle
         end
 
         %% Display
-        function [out] = plotPath(obj)
+        function [] = plotPath(obj)
         % Plots the path of the robot
             xcoord = zeros(1, length(obj.steps));
             ycoord = zeros(1, length(obj.steps));
